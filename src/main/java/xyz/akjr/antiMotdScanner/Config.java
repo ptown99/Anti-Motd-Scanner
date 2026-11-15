@@ -5,7 +5,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 
 public class Config {
     private final AntiMotdScanner plugin;
@@ -15,8 +14,6 @@ public class Config {
     public Config(JavaPlugin plugin) {
         this.plugin = (AntiMotdScanner) plugin;
     }
-
-    // ############################ INIT CONFIG FILE ############################
 
     public void createConfig() {
         this.configFile = new File(this.plugin.getDataFolder(), "config.yml");
@@ -36,7 +33,7 @@ public class Config {
         try {
             this.config.save(this.configFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().severe("Could not save config.yml: " + e.getMessage());
         }
         this.config = YamlConfiguration.loadConfiguration(this.configFile);
     }

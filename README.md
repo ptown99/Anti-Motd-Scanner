@@ -1,4 +1,7 @@
-# Anti MOTD Scanner (AMS)
+# Anti MOTD Scanner (AMS) - Minecraft 26.3 Port
+
+> [!NOTE]
+> This version has been ported and modernized for **Minecraft 26.3** ("Wilderness Bound"), featuring compatibility with Paper & Spigot 26.3, ProtocolLib 5.4.0+, and Java 21/25.
 
 **Please view the FAQ!**
 
@@ -116,3 +119,14 @@ log-all-motd-pings: true
 # Logs all blocked MOTD pings into blocked-motd-logs.txt
 log-blocked-motd-pings: true
 ```
+
+<hr>
+
+## 26.3 Port Changelog & Enhancements:
+- **Minecraft 26.3 Support:** Configured for `spigot-api:26.3-R0.1-SNAPSHOT` and `api-version: '26.3'`.
+- **Protocol 26.3 Handshake Interception:** Correctly identifies `EnumWrappers.ClientIntent.STATUS` on `PacketType.Handshake.Client.SET_PROTOCOL` with backwards-compatible fallback for legacy protocol state integers.
+- **Robust Client IP Resolution:** Resolved `UnsupportedOperationException` from temporary players by inspecting the network injector address as well as Bukkit socket addresses.
+- **Concurrent In-Memory Caching:** Replaced unsynchronized file-reading on every ping packet with a thread-safe in-memory `ConcurrentHashMap` set and modified-time tracking, protecting server TPS from disk I/O bottlenecks during mass ping attacks.
+- **Defense in Depth:** Added a high-priority Bukkit `ServerListPingEvent` fallback listener to strip MOTD and max player count if packets reach the server level.
+- **Resource Management & Lifecycle:** Implemented try-with-resources across all loggers to prevent dangling file handles, added proper listener unregistration in `onDisable()`, and wired proper permission nodes (`antimotdscanner.*`).
+

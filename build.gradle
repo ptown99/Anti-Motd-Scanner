@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'xyz.akjr'
-version = '0.1-ALPHA'
+version = '0.2-26.3'
 
 repositories {
     mavenCentral()
@@ -14,18 +14,23 @@ repositories {
         url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
     }
     maven {
-        url = uri("https://repo.dmulloy2.net/repository/public/")
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
+    }
+    maven {
+        name = "sonatype-snapshots"
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
-    compileOnly 'net.dmulloy2:ProtocolLib:5.4.0'
+    compileOnly("org.spigotmc:spigot-api:26.3-R0.1-SNAPSHOT")
+    compileOnly("net.dmulloy2:ProtocolLib:5.4.0")
 }
 
 tasks {
     runServer {
-        minecraftVersion("1.21")
+        minecraftVersion("26.3")
     }
 }
 
@@ -34,9 +39,6 @@ java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     sourceCompatibility = javaVersion
     targetCompatibility = javaVersion
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {

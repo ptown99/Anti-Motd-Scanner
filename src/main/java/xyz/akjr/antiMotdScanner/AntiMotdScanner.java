@@ -10,27 +10,29 @@ import java.io.IOException;
 public final class AntiMotdScanner extends JavaPlugin {
 
     private Config configManager;
-    private Commands commands;
     private StartupManager startupManager;
     private Network network;
 
     @Override
     public void onEnable() {
         this.configManager = new Config(this);
-        this.startupManager = new StartupManager(this, configManager);
-        this.commands = new Commands(this, configManager);
-        this.commands.setStartupManager(this.startupManager);
-        this.startupManager.initialize();
-        this.network = new Network(configManager, this);
         saveDefaultConfig();
-        getServer().getPluginManager().registerEvents(network, this);
         setup();
+
+        this.network = new Network(configManager, this);
+        this.startupManager = new StartupManager(this, configManager, network);
+
+        if (!this.startupManager.initialize()) {
+            return;
+        }
+
+        getServer().getPluginManager().registerEvents(network, this);
     }
 
-    public void setup(){
-        File directory = new File(getDataFolder() + "/ip-data/");
-        if (!directory.exists()){
-            directory.mkdir();
+    public void setup() {
+        File directory = new File(getDataFolder(), "ip-data");
+        if (!directory.exists()) {
+            directory.mkdirs();
         }
 
         createIfAbsent(directory, "ipcache.txt", "");
@@ -54,5 +56,13 @@ public final class AntiMotdScanner extends JavaPlugin {
     }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        if (network != null) {
+            network.cleanup();
+        }
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
 }

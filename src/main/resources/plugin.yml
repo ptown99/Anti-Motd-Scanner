@@ -1,15 +1,35 @@
 name: Anti-Motd-Scanner
-version: '0.1-ALPHA'
+version: '0.2-26.3'
 main: xyz.akjr.antiMotdScanner.AntiMotdScanner
-api-version: '1.21'
+api-version: '26.3'
 depend: [ProtocolLib]
 commands:
   ams-reload:
-    description: 'Reload AntiMotdScanner'
+    description: 'Reload AntiMotdScanner config and IP cache'
     usage: '/ams-reload'
+    permission: antimotdscanner.reload
   ams:
     description: 'AntiMotdScanner About'
     usage: '/ams'
+    permission: antimotdscanner.about
   ams-purge-cache:
     description: 'Purge ipcache.txt'
     usage: '/ams-purge-cache'
+    permission: antimotdscanner.purge
+permissions:
+  antimotdscanner.admin:
+    description: 'Allows full access to AntiMotdScanner commands'
+    default: op
+    children:
+      antimotdscanner.reload: true
+      antimotdscanner.purge: true
+      antimotdscanner.about: true
+  antimotdscanner.reload:
+    description: 'Allows reloading AntiMotdScanner'
+    default: op
+  antimotdscanner.purge:
+    description: 'Allows purging the IP cache'
+    default: op
+  antimotdscanner.about:
+    description: 'Allows viewing AntiMotdScanner info'
+    default: op
