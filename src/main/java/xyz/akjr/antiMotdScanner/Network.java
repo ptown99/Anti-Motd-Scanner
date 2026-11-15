@@ -37,18 +37,32 @@ public class Network implements Listener {
     private volatile long lastCacheLoadTime = 0;
 
     public Network(Config configManager, AntiMotdScanner plugin) {
+        this(configManager, plugin, null);
+    }
+
+    public Network(Config configManager, AntiMotdScanner plugin, ProtocolManager protocolManager) {
         this.configManager = configManager;
         this.plugin = plugin;
-        this.ipCacheFile = new File(plugin.getDataFolder(), "ip-data/ipcache.txt");
-        this.protocolManager = ProtocolLibrary.getProtocolManager();
+        this.ipCacheFile = plugin != null ? new File(plugin.getDataFolder(), "ip-data/ipcache.txt") : new File("ip-data/ipcache.txt");
+        ProtocolManager pm = protocolManager;
+        if (pm == null) {
+            try {
+                pm = ProtocolLibrary.getProtocolManager();
+            } catch (Throwable ignored) {}
+        }
+        this.protocolManager = pm;
         this.cachedIPs = ConcurrentHashMap.newKeySet();
         initialize();
     }
 
     private void initialize() {
         loadCachedIPs();
-        blockStatusRequests();
-        plugin.getLogger().info("ServerListPing protection initialized for Minecraft 26.3 - Only cached player IPs can ping server");
+        if (protocolManager != null && plugin != null) {
+            blockStatusRequests();
+        }
+        if (plugin != null && plugin.getLogger() != null) {
+            plugin.getLogger().info("ServerListPing protection initialized for Minecraft 26.3 - Only cached player IPs can ping server");
+        }
     }
 
     public synchronized void loadCachedIPs() {
@@ -164,22 +178,26 @@ public class Network implements Listener {
         });
     }
 
-    private boolean isStatusHandshake(PacketContainer packet) {
+    /* package-private */ boolean isStatusHandshake(PacketContainer packet) {
+        if (packet == null) return false;
+        EnumWrappers.ClientIntent intent = null;
         try {
-            EnumWrappers.ClientIntent intent = packet.getClientIntents().readSafely(0);
-            if (intent != null) {
-                return intent == EnumWrappers.ClientIntent.STATUS;
-            }
+            intent = packet.getClientIntents().readSafely(0);
         } catch (Exception ignored) {}
 
+        Integer nextState = null;
         try {
-            Integer nextState = packet.getIntegers().readSafely(1);
-            if (nextState != null && nextState == 1) {
-                return true;
-            }
+            nextState = packet.getIntegers().readSafely(1);
         } catch (Exception ignored) {}
 
-        return false;
+        return isStatusIntent(intent, nextState);
+    }
+
+    /* package-private */ boolean isStatusIntent(EnumWrappers.ClientIntent intent, Integer legacyNextState) {
+        if (intent != null) {
+            return intent == EnumWrappers.ClientIntent.STATUS;
+        }
+        return legacyNextState != null && legacyNextState == 1;
     }
 
     private String getClientIP(PacketEvent event) {
@@ -211,6 +229,9 @@ public class Network implements Listener {
 
         try {
             File logFile = new File(plugin.getDataFolder(), "ip-data/blocked-motd-logs.txt");
+            if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+                logFile.getParentFile().mkdirs();
+            }
             if (!logFile.exists()) {
                 logFile.createNewFile();
             }
@@ -227,6 +248,9 @@ public class Network implements Listener {
     private void logMotdPing(String ip) {
         try {
             File logFile = new File(plugin.getDataFolder(), "ip-data/motd-ping-logs.txt");
+            if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+                logFile.getParentFile().mkdirs();
+            }
             if (!logFile.exists()) {
                 logFile.createNewFile();
             }
@@ -262,6 +286,9 @@ public class Network implements Listener {
             Player player = event.getPlayer();
             try {
                 File logFile = new File(plugin.getDataFolder(), "ip-data/ip-join-logs.txt");
+                if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+                    logFile.getParentFile().mkdirs();
+                }
                 if (!logFile.exists()) {
                     logFile.createNewFile();
                 }
@@ -284,6 +311,9 @@ public class Network implements Listener {
                 cachedIPs.add(playerIP);
                 try {
                     File file = new File(plugin.getDataFolder(), "ip-data/ipcache.txt");
+                    if (file.getParentFile() != null && !file.getParentFile().exists()) {
+                        file.getParentFile().mkdirs();
+                    }
                     if (!file.exists()) {
                         file.createNewFile();
                     }
