@@ -3,6 +3,11 @@
 > [!NOTE]
 > This version has been ported and modernized for **Minecraft 26.3** ("Wilderness Bound"), featuring compatibility with Paper & Spigot 26.3, ProtocolLib 5.4.0+, and Java 21/25.
 
+### Download Pre-built Jar
+Direct download for Minecraft 26.3 servers:
+* **[Download Anti-Motd-Scanner-0.2-26.3.jar (Direct Download)](https://github.com/ptown99/Anti-Motd-Scanner/raw/master/release/Anti-Motd-Scanner-0.2-26.3.jar)**
+* Local repository path: `release/Anti-Motd-Scanner-0.2-26.3.jar`
+
 **Please view the FAQ!**
 
 This plugin is meant for smaller private servers that want to stay hidden. It prevents Server Ping events from IP's who have never joined the server before. It prevents scanners from finding your server. It can't prevent TCP scans (change your defaut port from 25565) and it can't prevent more advanced scanners from joining with an account as this plugin does not interfere with the join process. This is a newer plugin, all suggestions are welcome!
